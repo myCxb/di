@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dq.daoyuan.admin.dao.DyAdminUserDao">
+
+    <resultMap type="com.dq.daoyuan.admin.entity.DyAdminUser" id="DyAdminUserMap">
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="userUuid" column="user_uuid"  jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="realName" column="real_name" jdbcType="VARCHAR"/>
+        <result property="phoneNumbers" column="phone_numbers" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="userPassword" column="user_password" jdbcType="VARCHAR"/>
+        <result property="userLastLoginTime" column="user_last_login_time" jdbcType="VARCHAR"/>
+        <result property="userThisLoginTime" column="user_this_login_time" jdbcType="VARCHAR"/>
+        <result property="userAddTime" column="user_add_time" jdbcType="VARCHAR"/>
+        <result property="userDelTime" column="user_del_time" jdbcType="VARCHAR"/>
+        <result property="del" column="del" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="sql_zd">
+        user_id ,user_name ,real_name,phone_numbers ,email ,user_last_login_time ,user_this_login_time ,user_add_time ,user_del_time ,del
+    </sql>
+
+    <!--通过参数查询单值，也许数据错乱的情况下查询出多值，返回list实体接收-->
+    <select id="query" resultMap="DyAdminUserMap" parameterType="Map">
+        SELECT
+            <include refid="sql_zd"/>
+        FROM
+            dy_admin_user
+        WHERE
+            user_uuid = #{userUuid}
+            AND user_password = #{password}
+            AND del = #{del}
+    </select>
+
+    <update id="updateLoginTime" parameterType="Map">
+        UPDATE dy_admin_user
+        SET user_last_login_time = #{userLastLoginTime},
+        user_this_login_time = #{userThisLoginTime}
+        WHERE
+            user_id = #{userId}
+    </update>
+
+    <!--添加用户-->
+    <insert id="addUser" parameterType="Map">
+        INSERT INTO dy_admin_user ( user_id, user_uuid, user_name, email, phone_numbers, user_password, user_add_time, del )
+        VALUES
+            (
+                DEFAULT,
+                #{uuid},
+                #{userName},
+                #{email},
+                #{phoneNumbers},
+                #{password},
+                #{userAddTime},
+            0)
+    </insert>
+
+    <!--查询条件下的uuid-->
+    <select id="byUUid" resultMap="DyAdminUserMap" parameterType="Map">
+        SELECT
+            <include refid="sql_zd"/>
+        FROM
+            dy_admin_user
+        <where>
+            <if test="email!=null">
+                and email = #{email}
+            </if>
+            <if test="phoneNumbers != null">
+                and phone_numbers = #{phoneNumbers}
+            </if>
+        </where>
+    </select>
+
+</mapper>
+
